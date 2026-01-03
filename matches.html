@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Matches - HackMatch</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">⚡ HackMatch</a>
+      <nav>
+        <a href="swipe.html">Find Teams</a>
+        <a href="matches.html">My Matches</a>
+        <div class="user-info">
+          <span class="user-name" id="user-name">User</span>
+          <button class="btn btn-secondary" onclick="logout()" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 style="margin-bottom: 2rem;">Your Matches</h1>
+
+    <div id="matches-container" class="matches-grid">
+      <!-- Matches will be dynamically added here -->
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">💫</div>
+      <h2>No matches yet</h2>
+      <p>Keep swiping to find your perfect teammates!</p>
+      <a href="swipe.html" class="btn btn-primary" style="margin-top: 1rem;">Find Teammates</a>
+    </div>
+  </div>
+
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Check if user is logged in
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    }
+
+    // Display user name
+    document.getElementById('user-name').textContent = currentUser.name;
+
+    // Get matches
+    const matches = getUserMatches();
+
+    // Render matches
+    async function renderMatches() {
+      const container = document.getElementById('matches-container');
+      const emptyState = document.getElementById('empty-state');
+
+      if (matches.length === 0) {
+        container.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      for (const match of matches) {
+        // Calculate match score
+        const score = await calculateMatchScore(currentUser, match);
+
+        const card = document.createElement('a');
+        card.href = `chat.html?id=${match.id}`;
+        card.className = 'match-card';
+
+        const activityStatus = getActivityStatus(match.lastActive);
+        const timeAgo = getTimeAgo(match.lastActive);
+
+        card.innerHTML = `
+          <div class="match-header">
+            <div>
+              <div class="match-name">${match.name}</div>
+              <div style="color: var(--text-secondary); font-size: 0.9rem;">${match.role}</div>
+            </div>
+            <div class="match-score">${score}%</div>
+          </div>
+
+          <div style="margin: 0.75rem 0;">
+            <div class="stat">
+              <span class="status-dot ${activityStatus}"></span>
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">${timeAgo}</span>
+            </div>
+          </div>
+
+          <div class="skills-list">
+            ${match.skills.slice(0, 3).map(skill => `<span class="skill-tag" style="font-size: 0.85rem;">${skill}</span>`).join('')}
+            ${match.skills.length > 3 ? `<span class="skill-tag" style="font-size: 0.85rem;">+${match.skills.length - 3}</span>` : ''}
+          </div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--primary); font-weight: 600; font-size: 0.9rem;">
+            💬 Send message →
+          </div>
+        `;
+
+        container.appendChild(card);
+      }
+    }
+
+    // Initialize
+    renderMatches();
+  </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - HackMatch</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">⚡ HackMatch</a>
+      <nav>
+        <a href="swipe.html">Find Teams</a>
+        <a href="matches.html">My Matches</a>
+        <div class="user-info">
+          <span class="user-name" id="user-name">User</span>
+          <button class="btn btn-secondary" onclick="logout()" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="chat-container">
+      <div class="chat-header">
+        <button class="back-btn" onclick="window.location.href='matches.html'">←</button>
+        <div style="flex: 1;">
+          <div style="font-weight: 700; font-size: 1.1rem;" id="match-name">Loading...</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="match-role"></div>
+          <div id="team-members" style="display: none; margin-top: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
+            <!-- Team member avatars will be added here -->
+          </div>
+        </div>
+        <button class="btn btn-secondary" id="add-teammate-btn" onclick="showAddTeammateModal()" style="padding: 0.5rem 1rem; display: none;">
+          + Add Teammate
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages will be dynamically added here -->
+      </div>
+
+      <div class="chat-input-container">
+        <input type="text" class="chat-input" id="message-input" placeholder="Type a message..." />
+        <button class="send-btn" onclick="handleSend()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Teammate Modal -->
+  <div id="teammate-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Teammate</h2>
+        <button class="close-btn" onclick="closeAddTeammateModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Select a teammate from your matches:</p>
+        <div id="available-teammates" class="teammate-list">
+          <!-- Available teammates will be listed here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Check if user is logged in
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    }
+
+    // Display user name
+    document.getElementById('user-name').textContent = currentUser.name;
+
+    // Get match ID or team chat ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const matchId = urlParams.get('id');
+    const teamChatId = urlParams.get('team');
+
+    let isTeamChat = false;
+    let teamChat = null;
+    let matchProfile = null;
+    const profiles = getAllProfiles();
+
+    // Determine if this is a team chat or 1-on-1
+    if (teamChatId) {
+      isTeamChat = true;
+      teamChat = getTeamChat(teamChatId);
+      if (!teamChat) {
+        window.location.href = 'matches.html';
+      }
+    } else if (matchId) {
+      matchProfile = profiles.find(p => p.id === parseInt(matchId));
+      if (!matchProfile) {
+        window.location.href = 'matches.html';
+      }
+    } else {
+      window.location.href = 'matches.html';
+    }
+
+    // Display chat header
+    function updateChatHeader() {
+      if (isTeamChat) {
+        const memberProfiles = teamChat.members
+          .map(id => profiles.find(p => p.id === id))
+          .filter(Boolean);
+
+        const otherMembers = memberProfiles.filter(p => p.id !== currentUser.id);
+        const memberNames = otherMembers.map(p => p.name).join(', ');
+
+        document.getElementById('match-name').textContent = `Team Chat (${memberProfiles.length})`;
+        document.getElementById('match-role').textContent = memberNames;
+        document.getElementById('add-teammate-btn').style.display = 'block';
+
+        // Show team member avatars
+        const teamMembersContainer = document.getElementById('team-members');
+        teamMembersContainer.style.display = 'flex';
+        teamMembersContainer.innerHTML = memberProfiles.map(p => {
+          const initials = p.name.split(' ').map(n => n[0]).join('');
+          return `
+            <div class="team-avatar" title="${p.name}">
+              <div class="avatar-circle">${initials}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        document.getElementById('match-name').textContent = matchProfile.name;
+        document.getElementById('match-role').textContent = matchProfile.role;
+        document.getElementById('add-teammate-btn').style.display = 'block';
+      }
+    }
+
+    updateChatHeader();
+
+    // Render messages
+    function renderMessages() {
+      const container = document.getElementById('chat-messages');
+      let messages;
+
+      if (isTeamChat) {
+        messages = getTeamMessages(teamChatId);
+      } else {
+        messages = getMessages(parseInt(matchId));
+      }
+
+      container.innerHTML = '';
+
+      if (messages.length === 0) {
+        const targetName = isTeamChat ? 'your team' : matchProfile.name;
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">👋</div>
+            <h3>Start the conversation!</h3>
+            <p>Say hi to ${targetName}</p>
+          </div>
+        `;
+        return;
+      }
+
+      messages.forEach(msg => {
+        const isSent = msg.senderId === currentUser.id;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+
+        let senderName = '';
+        if (isTeamChat && !isSent) {
+          const sender = profiles.find(p => p.id === msg.senderId);
+          senderName = sender ? `<div class="message-sender">${sender.name}</div>` : '';
+        }
+
+        messageDiv.innerHTML = `
+          ${senderName}
+          <div class="message-bubble">${msg.text}</div>
+          <div class="message-time">${formatTime(msg.timestamp)}</div>
+        `;
+
+        container.appendChild(messageDiv);
+      });
+
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Handle send
+    window.handleSend = function() {
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      if (isTeamChat) {
+        sendTeamMessage(teamChatId, text);
+      } else {
+        sendMessage(parseInt(matchId), text);
+      }
+
+      input.value = '';
+      renderMessages();
+    };
+
+    // Show add teammate modal
+    window.showAddTeammateModal = function() {
+      const modal = document.getElementById('teammate-modal');
+      const availableList = document.getElementById('available-teammates');
+
+      // Get all matches excluding current team members
+      const matches = getUserMatches();
+      const currentMemberIds = isTeamChat
+        ? teamChat.members
+        : [currentUser.id, parseInt(matchId)];
+
+      const availableMatches = matches.filter(m => !currentMemberIds.includes(m.id));
+
+      if (availableMatches.length === 0) {
+        availableList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No more matches available to add.</p>';
+      } else {
+        availableList.innerHTML = availableMatches.map(match => `
+          <div class="teammate-item" onclick="addTeammate(${match.id})">
+            <div>
+              <div class="teammate-name">${match.name}</div>
+              <div class="teammate-role">${match.role}</div>
+            </div>
+            <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+          </div>
+        `).join('');
+      }
+
+      modal.style.display = 'flex';
+    };
+
+    // Close add teammate modal
+    window.closeAddTeammateModal = function() {
+      document.getElementById('teammate-modal').style.display = 'none';
+    };
+
+    // Add teammate to chat
+    window.addTeammate = function(newMemberId) {
+      if (isTeamChat) {
+        // Add to existing team chat
+        addMemberToTeamChat(teamChatId, newMemberId);
+        teamChat = getTeamChat(teamChatId);
+      } else {
+        // Convert to team chat
+        const newTeamChat = createTeamChat(parseInt(matchId), [newMemberId]);
+
+        // Redirect to team chat
+        window.location.href = `chat.html?team=${newTeamChat.id}`;
+        return;
+      }
+
+      closeAddTeammateModal();
+      updateChatHeader();
+
+      // Show notification
+      const newMember = profiles.find(p => p.id === newMemberId);
+      if (newMember) {
+        alert(`${newMember.name} has been added to the team chat!`);
+      }
+    };
+
+    // Enter key to send
+    document.getElementById('message-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleSend();
+      }
+    });
+
+    // Close modal on background click
+    document.getElementById('teammate-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'teammate-modal') {
+        closeAddTeammateModal();
+      }
+    });
+
+    // Initialize
+    renderMessages();
+
+    // Auto-refresh messages every 2 seconds (simulate real-time)
+    setInterval(renderMessages, 2000);
+  </script>
+</body>
+</html>

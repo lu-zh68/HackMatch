@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Teammates - HackMatch</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">⚡ HackMatch</a>
+      <nav>
+        <a href="swipe.html">Find Teams</a>
+        <a href="matches.html">My Matches</a>
+        <div class="user-info">
+          <span class="user-name" id="user-name">User</span>
+          <button class="btn btn-secondary" onclick="logout()" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="swipe-view" class="swipe-container">
+      <!-- Cards will be dynamically added here -->
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">🎉</div>
+      <h2>You've seen everyone!</h2>
+      <p>Check back later for new profiles, or view your matches.</p>
+      <a href="matches.html" class="btn btn-primary" style="margin-top: 1rem;">View Matches</a>
+    </div>
+  </div>
+
+  <div id="notification-container"></div>
+
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Check if user is logged in
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    }
+
+    // Display user name
+    document.getElementById('user-name').textContent = currentUser.name;
+
+    // Get profiles to swipe
+    let profilesToSwipe = getProfilesToSwipe();
+    let currentIndex = 0;
+    let isCalculatingScore = false;
+
+    // Show notification
+    function showNotification(message) {
+      const container = document.getElementById('notification-container');
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      container.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // Render current card
+    async function renderCard() {
+      const swipeView = document.getElementById('swipe-view');
+      const emptyState = document.getElementById('empty-state');
+
+      if (currentIndex >= profilesToSwipe.length) {
+        swipeView.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      const profile = profilesToSwipe[currentIndex];
+
+      // Calculate match score with Gemini
+      let matchScore = 75;
+      if (!isCalculatingScore) {
+        isCalculatingScore = true;
+        try {
+          matchScore = await calculateMatchScore(currentUser, profile);
+        } catch (error) {
+          console.error('Error calculating score:', error);
+        }
+        isCalculatingScore = false;
+      }
+
+      const activityStatus = getActivityStatus(profile.lastActive);
+      const timeAgo = getTimeAgo(profile.lastActive);
+
+      const card = document.createElement('div');
+      card.className = 'swipe-card';
+
+      // Build achievements HTML
+      const achievementsHTML = profile.achievements && profile.achievements.length > 0
+        ? `<div class="profile-section">
+             <div class="section-title">Achievements</div>
+             <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary);">
+               ${profile.achievements.slice(0, 3).map(ach => `<li>${ach}</li>`).join('')}
+             </ul>
+           </div>`
+        : '';
+
+      // Build interests HTML
+      const interestsHTML = profile.interests && profile.interests.length > 0
+        ? `<div class="profile-section">
+             <div class="section-title">Interests</div>
+             <div class="skills-list">
+               ${profile.interests.map(interest => `<span class="skill-tag">${interest}</span>`).join('')}
+             </div>
+           </div>`
+        : '';
+
+      // Build links HTML
+      const linksHTML = (profile.githubUrl || profile.devpostUrl)
+        ? `<div class="profile-section">
+             <div class="section-title">Links</div>
+             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+               ${profile.githubUrl ? `<a href="${profile.githubUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">GitHub →</a>` : ''}
+               ${profile.devpostUrl ? `<a href="${profile.devpostUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">Devpost →</a>` : ''}
+             </div>
+           </div>`
+        : '';
+
+      card.innerHTML = `
+        <div class="profile-header">
+          <h2 class="profile-name">${profile.name}</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem;">${profile.pronouns}</p>
+          <p class="profile-role">${profile.role}</p>
+
+          <div class="profile-stats">
+            <div class="stat">
+              <span class="status-dot ${activityStatus}"></span>
+              <span>${timeAgo}</span>
+            </div>
+            <div class="stat">
+              <span>🌍 ${getReadableTimezone(profile.timezone)}</span>
+            </div>
+            <div class="stat">
+              <span class="hackathon-badge">🏆 ${profile.hackathonCount !== null && profile.hackathonCount !== undefined ? profile.hackathonCount + ' hackathon' + (profile.hackathonCount !== 1 ? 's' : '') : '--'}</span>
+            </div>
+          </div>
+
+          <div class="stat" style="justify-content: center; margin-top: 0.5rem;">
+            <span style="background: var(--primary); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+              ${matchScore}% Match
+            </span>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <div class="section-title">About</div>
+          <p style="color: var(--text-secondary);">${profile.bio}</p>
+        </div>
+
+        <div class="profile-section">
+          <div class="section-title">Skills</div>
+          <div class="skills-list">
+            ${profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+          </div>
+        </div>
+
+        ${interestsHTML}
+        ${achievementsHTML}
+        ${linksHTML}
+
+        <div class="profile-section" style="margin-bottom: 0;">
+          <div class="section-title">Experience</div>
+          <p style="color: var(--text-secondary);">${profile.experienceLevel}</p>
+        </div>
+
+        <div class="swipe-actions">
+          <button class="swipe-btn reject" onclick="handleSwipe('left')">✕</button>
+          <button class="swipe-btn accept" onclick="handleSwipe('right')">❤️</button>
+        </div>
+      `;
+
+      swipeView.innerHTML = '';
+      swipeView.appendChild(card);
+    }
+
+    // Handle swipe
+    window.handleSwipe = function(direction) {
+      const card = document.querySelector('.swipe-card');
+      const profile = profilesToSwipe[currentIndex];
+
+      // Animate card
+      card.classList.add(`swiping-${direction}`);
+
+      setTimeout(() => {
+        // Save swipe
+        saveSwipe(profile.id, direction);
+
+        // Move to next profile
+        currentIndex++;
+        renderCard();
+      }, 300);
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        handleSwipe('left');
+      } else if (e.key === 'ArrowRight') {
+        handleSwipe('right');
+      }
+    });
+
+    // Initialize
+    renderCard();
+  </script>
+</body>
+</html>

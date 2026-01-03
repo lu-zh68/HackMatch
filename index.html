@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackMatch - Find Your Perfect Hackathon Team</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">⚡ HackMatch</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Find Your Perfect Hackathon Team</h1>
+      <p>Swipe. Match. Build. Win.</p>
+
+      <div class="stats-banner" id="stats-banner">
+        🔥 <span id="profile-count">20</span> hackers looking for teams
+      </div>
+    </div>
+
+    <div class="narrow-container">
+      <div class="card">
+        <h2 style="margin-bottom: 1.5rem;">Create Your Profile</h2>
+
+        <form id="profile-form">
+          <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" required placeholder="Your name">
+          </div>
+
+          <div class="form-group">
+            <label for="pronouns">Pronouns *</label>
+            <select id="pronouns" required>
+              <option value="">Select pronouns...</option>
+              <option value="he/him">he/him</option>
+              <option value="she/her">she/her</option>
+              <option value="they/them">they/them</option>
+              <option value="he/they">he/they</option>
+              <option value="she/they">she/they</option>
+              <option value="prefer not to say">Prefer not to say</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Your Role *</label>
+            <select id="role" required>
+              <option value="">Select your role...</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+              <option value="Full-Stack Developer">Full-Stack Developer</option>
+              <option value="Mobile Developer">Mobile Developer</option>
+              <option value="UI/UX Designer">UI/UX Designer</option>
+              <option value="Product Manager">Product Manager</option>
+              <option value="Data Scientist">Data Scientist</option>
+              <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+              <option value="DevOps Engineer">DevOps Engineer</option>
+              <option value="Game Developer">Game Developer</option>
+              <option value="AR/VR Developer">AR/VR Developer</option>
+              <option value="Blockchain Developer">Blockchain Developer</option>
+              <option value="Content Creator">Content Creator</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="skills">Your Skills * (comma separated)</label>
+            <input type="text" id="skills" required placeholder="React, Python, Figma">
+          </div>
+
+          <div class="form-group">
+            <label for="looking-for">Looking For * (comma separated)</label>
+            <input type="text" id="looking-for" required placeholder="Backend Dev, Designer">
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Bio *</label>
+            <textarea id="bio" required placeholder="Tell potential teammates about yourself..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="achievements">Achievements (comma separated)</label>
+            <textarea id="achievements" placeholder="Won HackMIT 2023, Built app with 10k users, Published open-source library"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="interests">Interests (select multiple) *</label>
+            <select id="interests" multiple required size="8" style="height: auto;">
+              <option value="Accessibility">Accessibility</option>
+              <option value="Artificial Intelligence">Artificial Intelligence</option>
+              <option value="Animation">Animation</option>
+              <option value="AR/VR">AR/VR</option>
+              <option value="Blockchain">Blockchain</option>
+              <option value="Climate Tech">Climate Tech</option>
+              <option value="Cloud Infrastructure">Cloud Infrastructure</option>
+              <option value="Data Visualization">Data Visualization</option>
+              <option value="Design Systems">Design Systems</option>
+              <option value="DevOps">DevOps</option>
+              <option value="EdTech">EdTech</option>
+              <option value="FinTech">FinTech</option>
+              <option value="Gaming">Gaming</option>
+              <option value="HealthTech">HealthTech</option>
+              <option value="IoT">IoT</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Open Source">Open Source</option>
+              <option value="Security">Security</option>
+              <option value="Social Impact">Social Impact</option>
+              <option value="Web3">Web3</option>
+            </select>
+            <small style="color: var(--text-secondary); font-size: 0.85rem;">Hold Cmd/Ctrl to select multiple</small>
+          </div>
+
+          <div class="form-group">
+            <label for="hackathon-count">How many hackathons attended?</label>
+            <input type="number" id="hackathon-count" min="0" placeholder="Enter number (leave empty for --)">
+          </div>
+
+          <div class="form-group">
+            <label for="timezone">Timezone *</label>
+            <select id="timezone" required>
+              <option value="">Select timezone...</option>
+              <option value="America/Los_Angeles">Pacific Time (PT)</option>
+              <option value="America/Denver">Mountain Time (MT)</option>
+              <option value="America/Chicago">Central Time (CT)</option>
+              <option value="America/New_York">Eastern Time (ET)</option>
+              <option value="America/Sao_Paulo">Brazil (BRT)</option>
+              <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
+              <option value="Europe/London">London (GMT)</option>
+              <option value="Europe/Berlin">Central Europe (CET)</option>
+              <option value="Europe/Athens">Eastern Europe (EET)</option>
+              <option value="Asia/Kolkata">India (IST)</option>
+              <option value="Asia/Tokyo">Japan (JST)</option>
+              <option value="Asia/Karachi">Pakistan (PKT)</option>
+              <option value="Australia/Sydney">Australia (AEST)</option>
+              <option value="Africa/Cairo">Egypt (EET)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="devpost-url">Devpost Profile URL (optional)</label>
+            <input type="url" id="devpost-url" placeholder="https://devpost.com/your-username">
+          </div>
+
+          <div class="form-group">
+            <label for="github-url">GitHub Profile URL (optional)</label>
+            <input type="url" id="github-url" placeholder="https://github.com/your-username">
+          </div>
+
+          <div class="form-group">
+            <label for="experience-level">Experience Level *</label>
+            <select id="experience-level" required>
+              <option value="">Select level...</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Start Swiping →
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <a href="swipe.html" style="color: var(--text-secondary); text-decoration: none;">
+            Already have a profile? Browse teams →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Initialize data
+    initializeData();
+
+    // Update profile count
+    const profileCount = getAllProfiles().length;
+    document.getElementById('profile-count').textContent = profileCount;
+
+    // Handle form submission
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Get form values
+      const name = document.getElementById('name').value.trim();
+      const pronouns = document.getElementById('pronouns').value;
+      const role = document.getElementById('role').value;
+      const skills = document.getElementById('skills').value.split(',').map(s => s.trim());
+      const lookingFor = document.getElementById('looking-for').value.split(',').map(s => s.trim());
+      const bio = document.getElementById('bio').value.trim();
+
+      // Achievements (optional)
+      const achievementsInput = document.getElementById('achievements').value.trim();
+      const achievements = achievementsInput ? achievementsInput.split(',').map(s => s.trim()) : [];
+
+      // Interests (multi-select)
+      const interestsSelect = document.getElementById('interests');
+      const interests = Array.from(interestsSelect.selectedOptions).map(opt => opt.value);
+
+      const hackathonCountInput = document.getElementById('hackathon-count').value.trim();
+      const hackathonCount = hackathonCountInput ? parseInt(hackathonCountInput) : null;
+      const timezone = document.getElementById('timezone').value;
+
+      const devpostUrl = document.getElementById('devpost-url').value.trim() || '';
+      const githubUrl = document.getElementById('github-url').value.trim() || '';
+
+      const experienceLevel = document.getElementById('experience-level').value;
+
+      // Create new profile
+      const profiles = getAllProfiles();
+      const newProfile = {
+        id: profiles.length + 1,
+        name,
+        pronouns,
+        role,
+        skills,
+        lookingFor,
+        bio,
+        achievements,
+        interests,
+        hackathonCount,
+        timezone,
+        lastActive: Date.now(),
+        devpostUrl,
+        githubUrl,
+        experienceLevel
+      };
+
+      // Add to profiles
+      profiles.push(newProfile);
+      localStorage.setItem('profiles', JSON.stringify(profiles));
+
+      // Set as current user
+      saveCurrentUser(newProfile);
+
+      // Redirect to swipe page
+      window.location.href = 'swipe.html';
+    });
+  </script>
+</body>
+</html>
