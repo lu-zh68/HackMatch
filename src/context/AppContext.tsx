@@ -117,14 +117,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Add project
     setProjects(prev => [...prev, project]);
 
-    // Update match with project ID and status
-    setMatches(prev =>
-      prev.map(match =>
+    // Create a new team chat (separate from individual chats)
+    const teamChatId = `team_${project.id}`;
+    const newTeamChat: Match = {
+      userId: teamChatId,
+      matchedAt: 'Just now',
+      messages: [],
+      teamStatus: 'teamed',
+      projectId: project.id,
+      teamMembers: project.members.filter(m => m !== 'me'), // All members except "me"
+      isTeamChat: true,
+    };
+
+    // Add the team chat to matches and mark individual chats as teamed
+    setMatches(prev => [
+      ...prev.map(match =>
         match.userId === userId
           ? { ...match, teamStatus: 'teamed', projectId: project.id }
           : match
-      )
-    );
+      ),
+      newTeamChat, // Add the new team chat
+    ]);
 
     // Update user profile
     setState(prev => ({
@@ -138,15 +151,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addTeamMember = (chatUserId: string, newMemberId: string) => {
-    // Find the project associated with this chat
+    // Find the project associated with this chat (could be team chat or individual chat)
     const chatMatch = matches.find(m => m.userId === chatUserId);
     const projectId = chatMatch?.projectId;
 
     setMatches(prev =>
       prev.map(match => {
-        // Update the current chat's team members
-        if (match.userId === chatUserId) {
-          const currentTeamMembers = match.teamMembers || [chatUserId];
+        // If this is the team chat, add the new member to teamMembers
+        if (match.isTeamChat && match.projectId === projectId) {
+          const currentTeamMembers = match.teamMembers || [];
           if (!currentTeamMembers.includes(newMemberId)) {
             return {
               ...match,
@@ -154,7 +167,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             };
           }
         }
-        // Update the newly added member's match status to "teamed"
+        // Mark the newly added member's individual chat as "teamed"
         if (match.userId === newMemberId && projectId) {
           return {
             ...match,

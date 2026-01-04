@@ -202,12 +202,13 @@ export interface Message {
 export type TeamStatus = 'matched' | 'chatting' | 'teamed' | 'forfeited' | 'archived';
 
 export interface Match {
-  userId: string;
+  userId: string; // For individual chats: the other user's ID. For team chats: "team_${projectId}"
   matchedAt: string;
   messages: Message[];
   teamStatus: TeamStatus;
   projectId?: string;
-  teamMembers?: string[]; // Array of user IDs in team chat (includes userId)
+  teamMembers?: string[]; // Array of user IDs in team chat
+  isTeamChat?: boolean; // True if this is a team chat (not a 1-on-1)
 }
 
 export const initialMatches: Match[] = [];

@@ -30,15 +30,15 @@ export function ChatView() {
   const [projectDescription, setProjectDescription] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const user = mockUsers.find((u) => u.id === currentChatUserId);
   const match = matches.find((m) => m.userId === currentChatUserId);
+  const isTeamChat = match?.isTeamChat || false;
+  const user = !isTeamChat ? mockUsers.find((u) => u.id === currentChatUserId) : null;
   const project = match?.projectId ? projects.find(p => p.id === match.projectId) : null;
 
   // Get team members if this is a team chat
   const teamMembers = match?.teamMembers ?
     mockUsers.filter(u => match.teamMembers?.includes(u.id)) :
     [];
-  const isTeamChat = teamMembers.length > 1;
 
   // Get available matches to add as teammates (exclude already in team)
   const availableTeammates = mockUsers.filter(u =>
@@ -57,7 +57,7 @@ export function ChatView() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [match?.messages]);
 
-  if (!user || !match) {
+  if (!match || (!user && !isTeamChat)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Chat not found</p>
@@ -68,7 +68,7 @@ export function ChatView() {
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      addMessage(user.id, message.trim());
+      addMessage(currentChatUserId || '', message.trim());
       setMessage('');
     }
   };
@@ -78,7 +78,7 @@ export function ChatView() {
   };
 
   const handleCreateProject = () => {
-    if (!projectName.trim()) return;
+    if (!projectName.trim() || !user) return;
 
     const newProject: Project = {
       id: `proj_${Date.now()}`,
@@ -99,6 +99,7 @@ export function ChatView() {
   };
 
   const handleArchive = () => {
+    if (!user) return;
     updateTeamStatus(user.id, 'archived');
     navigate('matches');
   };
@@ -143,21 +144,31 @@ export function ChatView() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <div className="relative">
-              <InitialsAvatar name={user.name} size="sm" />
-              {user.isOnline && (
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-card" />
-              )}
-            </div>
+            {!isTeamChat && user && (
+              <div className="relative">
+                <InitialsAvatar name={user.name} size="sm" />
+                {user.isOnline && (
+                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-card" />
+                )}
+              </div>
+            )}
+
+            {isTeamChat && project && (
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+            )}
 
             <div className="flex-1 min-w-0">
               <h2 className="font-semibold">
-                {project ? project.name : (isTeamChat ? `Team Chat (${teamMembers.length})` : user.name.split(' ')[0])}
+                {project ? project.name : (isTeamChat ? `Team Chat (${teamMembers.length})` : (user ? user.name.split(' ')[0] : 'Chat'))}
               </h2>
               <p className="text-xs text-muted-foreground">
                 {isTeamChat
                   ? teamMembers.map(m => m.name.split(' ')[0]).join(', ')
-                  : (user.isOnline ? 'Online' : user.lastActive)}
+                  : (user && user.isOnline ? 'Online' : (user ? user.lastActive : ''))}
               </p>
             </div>
 
@@ -183,7 +194,7 @@ export function ChatView() {
               </>
             )}
 
-            {!isTeamChat && (
+            {!isTeamChat && user && (
               <>
                 <Button
                   variant="ghost"

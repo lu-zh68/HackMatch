@@ -19,12 +19,29 @@ function getTeamStatusBadge(status: TeamStatus) {
 }
 
 export function MatchesView() {
-  const { matches, openChat } = useApp();
+  const { matches, openChat, projects } = useApp();
 
-  const matchedUsers = matches.map((match) => ({
-    ...match,
-    user: mockUsers.find((u) => u.id === match.userId)!,
-  })).filter((m) => m.user);
+  const matchedUsers = matches.map((match) => {
+    if (match.isTeamChat) {
+      // For team chats, get project info and team members
+      const project = projects.find(p => p.id === match.projectId);
+      const teamMembers = match.teamMembers ?
+        mockUsers.filter(u => match.teamMembers?.includes(u.id)) :
+        [];
+      return {
+        ...match,
+        user: null,
+        project,
+        teamMembers,
+      };
+    }
+    return {
+      ...match,
+      user: mockUsers.find((u) => u.id === match.userId)!,
+      project: null,
+      teamMembers: [],
+    };
+  });
 
   return (
     <div className="min-h-screen px-4 pt-6 pb-28 relative">
@@ -63,40 +80,58 @@ export function MatchesView() {
         </motion.div>
       ) : (
         <div className="space-y-3 relative z-10">
-          {matchedUsers.map(({ user, matchedAt, messages, teamStatus }, index) => {
+          {matchedUsers.map(({ user, userId, matchedAt, messages, teamStatus, project, teamMembers }, index) => {
             const lastMessage = messages[messages.length - 1];
             const statusBadge = getTeamStatusBadge(teamStatus);
+            const isTeam = !user && project;
+
             return (
               <motion.button
-                key={user.id}
+                key={userId}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => openChat(user.id)}
+                onClick={() => openChat(userId)}
                 className="w-full flat-card rounded-xl p-4 flex items-center gap-4 hover:bg-muted/50 hover:border-primary/30 transition-all duration-200"
               >
                 {/* Avatar */}
                 <div className="relative">
-                  <InitialsAvatar name={user.name} size="md" />
-                  {user.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary rounded-full border-2 border-card" />
-                  )}
+                  {isTeam ? (
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                  ) : user ? (
+                    <>
+                      <InitialsAvatar name={user.name} size="md" />
+                      {user.isOnline && (
+                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary rounded-full border-2 border-card" />
+                      )}
+                    </>
+                  ) : null}
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 text-left min-w-0">
-                  <h3 className="font-semibold mb-1">{user.name}</h3>
+                  <h3 className="font-semibold mb-1">
+                    {isTeam ? project?.name : user?.name}
+                  </h3>
                   <div className="mb-1">
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${statusBadge.className}`}>
                       {statusBadge.text}
                     </span>
                   </div>
                   <div className="flex gap-1 mb-1 flex-wrap">
-                    {user.skills.slice(0, 3).map((skill) => (
-                      <span key={skill} className="skill-pill text-xs">
-                        {skill}
+                    {isTeam ? (
+                      <span className="text-xs text-muted-foreground">
+                        {teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}
                       </span>
-                    ))}
+                    ) : user ? (
+                      user.skills.slice(0, 3).map((skill) => (
+                        <span key={skill} className="skill-pill text-xs">
+                          {skill}
+                        </span>
+                      ))
+                    ) : null}
                   </div>
                   <p className="text-sm text-muted-foreground truncate">
                     {lastMessage ? (
@@ -105,7 +140,7 @@ export function MatchesView() {
                         {lastMessage.text}
                       </>
                     ) : (
-                      <span className="text-primary">Say hi!</span>
+                      <span className="text-primary">{isTeam ? 'Team chat' : 'Say hi!'}</span>
                     )}
                   </p>
                 </div>
