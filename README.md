@@ -1,152 +1,223 @@
-# HackMatch 🚀
+# HackMatch - Swipe. Match. Build.
 
-**Tinder for Hackathon Teams** - Find your perfect teammates before the event starts!
-
-## What is HackMatch?
-
-HackMatch solves the #1 problem hackers face: **finding a team**.
-
-Instead of awkwardly wandering around on Day 1 asking "anyone need a backend dev?", use HackMatch to:
-- 🔍 Browse profiles of other participants
-- 💫 Swipe right on potential teammates
-- 🤝 Match when both swipe right
-- 💬 Chat to plan your project
-- 🚀 Show up on Day 1 ready to build!
+A Tinder-style web app to find hackathon teammates with AI-powered matching.
 
 ## Features
 
-### 🎯 Smart Matching with Gemini AI
-- AI-powered compatibility scores (powered by Google Gemini)
-- Considers skills, timezones, experience levels, and what you're looking for
-- See match percentage before you swipe
-
-### 📊 Activity Radar
-- See when users were last active
-- View their Devpost hackathon history
-- Check timezone compatibility
-- Know their experience level
-
-### 💬 Simple Chat
-- 1-on-1 messaging after matching
-- Clean, minimal interface
-- No fluff, just what you need to coordinate
-
-### 🌈 Inclusive Design
-- Helps solo hackers find teams
-- Reduces barrier for underrepresented groups
-- Beginner-friendly experience indicators
-
-## How to Use
-
-### 1. Open the App
-
-Simply open `index.html` in your web browser:
-
-```bash
-cd /Users/luzhang/Desktop/HackMatch
-open index.html
-```
-
-Or double-click `index.html` in Finder.
-
-### 2. Create Your Profile
-
-Fill out:
-- Name
-- Role (Frontend, Backend, Designer, etc.)
-- Skills
-- What you're looking for
-- Bio
-- Hackathon experience
-- Devpost username (optional)
-
-### 3. Start Swiping
-
-- ❤️ Swipe right (or press →) if you want to team up
-- ✕ Swipe left (or press ←) to pass
-- See AI-powered match scores
-- View activity status and timezone
-
-### 4. Chat with Matches
-
-- When you match, start chatting!
-- Plan your project idea
-- Coordinate before the hackathon starts
-
-## Demo Features
-
-### Sample Profiles
-
-The app comes pre-loaded with 20 diverse sample profiles:
-- Various roles: Frontend, Backend, ML, Design, Product, etc.
-- Different experience levels: Beginners to veterans
-- Global timezones
-- Realistic hackathon counts and skills
-
-### AI Matching
-
-Uses Google Gemini API to calculate compatibility:
-- Analyzes complementary skills
-- Checks timezone compatibility
-- Balances experience levels
-- Generates personalized match explanations
+- **Smart Matching**: AI-powered compatibility scoring using Google's Gemini API
+- **Tinder-style Swiping**: Swipe right to match, left to pass
+- **Team Formation Flow**: Clear progression from match → chat → team formation
+- **Rich Profiles**: Roles, skills, interests, intent, GitHub/Devpost links
+- **Timezone Compatibility**: Shows hour differences between teammates
+- **Real-time Chat**: Message matched teammates before teaming up
+- **Match Scoring**: Best matches shown first based on complementary skills
 
 ## Tech Stack
 
-- **Frontend**: Pure HTML/CSS/JavaScript (no frameworks!)
-- **AI**: Google Gemini API
-- **Storage**: localStorage (for demo - would use MongoDB for production)
-- **Deployment**: Ready for Vercel/Netlify
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: TailwindCSS, shadcn/ui components
+- **Animation**: Framer Motion
+- **AI**: Google Generative AI (Gemini)
 
-## For the Hackathon Pitch
+## Quick Start
 
-### Problem
-Teams don't fail because their code is bad - they fail because they can't find the right teammates. Solo hackers waste valuable time on Day 1 looking for teams instead of building.
+### 1. Clone or Download
 
-### Solution
-HackMatch - the Tinder for hackathon teams. Swipe. Match. Build. Win.
+```bash
+cd hackmatch-connect-main
+```
 
-### Why It Wins
+### 2. Install Dependencies
 
-**Best Hack for Hackers:**
-- Empowers the hacker community to form better teams
-- Solves a universal pre-hackathon pain point
-- Built by hackers who experienced this problem firsthand
+```bash
+npm install
+```
 
-**Best Use of Gemini API:**
-- Smart matching algorithm powered by AI
-- Compatibility scores and explanations
-- Not just random swiping - intelligent team formation
+### 3. Set Up Gemini API Key (Optional but Recommended)
 
-**Social Good:**
-- Reduces barriers for underrepresented groups
-- Helps beginners find experienced mentors
-- Creates inclusive team formation process
+1. Get your free API key from: https://makersuite.google.com/app/apikey
+2. Create a `.env` file in the project root:
 
-## Next Steps for Production
+```bash
+cp .env.example .env
+```
 
-1. **Backend**: Build FastAPI/Node.js backend
-2. **Database**: MongoDB Atlas for real user data
-3. **Real-time**: WebSocket for live chat
-4. **Auth**: OAuth with Devpost
-5. **Deployment**: Deploy to Vercel + MongoDB Atlas
-6. **Multi-event**: Support multiple hackathons simultaneously
+3. Add your API key to `.env`:
 
-## Files
+```
+VITE_GEMINI_API_KEY=your_actual_gemini_api_key_here
+```
 
-- `index.html` - Landing page & profile creation
-- `swipe.html` - Swipe interface
-- `matches.html` - View your matches
-- `chat.html` - 1-on-1 chat
-- `app.js` - Core application logic
-- `sample-data.js` - 20 sample profiles
-- `styles.css` - Clean, modern styling
-- `.env` - Gemini API key (gitignored)
+**Note**: If you don't add an API key, the app will use a fallback matching algorithm (still works great!).
 
-## API Key
+### 4. Run the App
 
-Your Gemini API key is stored in `.env` and is safe to share with your teammate for the hackathon. After the event, you can regenerate it at https://aistudio.google.com/apikey if desired.
+```bash
+npm run dev
+```
 
-## Built With ❤️ for Hack for Hackers
+The app will open at `http://localhost:5173`
 
-Created to solve a real problem we both faced. Let's help hackers find their dream teams!
+## Sharing with Your Teammate
+
+### Option 1: Deploy to Lovable (Easiest)
+
+1. Visit the [Lovable Project](https://lovable.dev)
+2. Upload this code
+3. Click **Share → Publish**
+4. Share the generated URL with your teammate
+
+### Option 2: Deploy to Vercel
+
+1. Push this code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Import your GitHub repository
+4. Add your `VITE_GEMINI_API_KEY` in the Environment Variables section
+5. Deploy and share the URL
+
+### Option 3: Deploy to Netlify
+
+1. Push this code to GitHub
+2. Go to [netlify.com](https://netlify.com)
+3. Connect your repository
+4. Add `VITE_GEMINI_API_KEY` to environment variables
+5. Deploy and share the URL
+
+### Option 4: Local Network Sharing
+
+If your teammate is on the same network:
+
+```bash
+npm run dev -- --host
+```
+
+Then share your local IP address (shown in terminal) with your teammate.
+
+### Option 5: Tunnel with ngrok
+
+For quick remote access:
+
+```bash
+# Install ngrok: https://ngrok.com/download
+npm run dev
+
+# In another terminal:
+ngrok http 5173
+```
+
+Share the ngrok URL with your teammate.
+
+## How to Use
+
+### As a User:
+
+1. **Login**: Click "Continue" on the login screen
+2. **Onboarding**: Fill out your profile:
+   - Name, pronouns, bio
+   - Select your role (Frontend, Backend, etc.)
+   - Add your skills (React, Python, etc.)
+   - Add your interests (AI, Web3, etc.)
+   - Write your intent (what you're looking for)
+   - Add GitHub/Devpost usernames
+   - Select your timezone
+
+3. **Swipe**:
+   - View AI-generated match scores
+   - See complementary skills and shared interests
+   - Swipe right (❤️) to match, left (✗) to pass
+
+4. **Chat**:
+   - Message your matches
+   - See their skills, timezone, and online status
+
+5. **Team Up**:
+   - Click "Form Team" to officially team up
+   - Or "Not Now" to keep browsing
+
+## Customization
+
+### Adding More Profiles
+
+Edit `src/data/mockUsers.ts` to add more fake profiles for testing.
+
+### Changing Match Algorithm
+
+Edit `src/utils/matching.ts` to adjust the scoring weights:
+- Interest Match: 0-40 points
+- Skill Complementarity: 0-30 points
+- Role Compatibility: 0-20 points
+- Intent Alignment: 0-10 points
+
+### Styling
+
+The app uses TailwindCSS. Edit:
+- `src/index.css` for global styles
+- `tailwind.config.ts` for theme colors
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── ui/               # shadcn/ui components
+│   └── views/           # Main app views
+│       ├── LoginView.tsx
+│       ├── OnboardingView.tsx
+│       ├── SwipeView.tsx
+│       ├── MatchesView.tsx
+│       ├── ChatView.tsx
+│       └── ProfileView.tsx
+├── context/
+│   └── AppContext.tsx    # Global state management
+├── data/
+│   └── mockUsers.ts      # Mock user profiles
+├── lib/
+│   └── gemini.ts         # Gemini AI setup
+├── types/
+│   └── app.ts            # TypeScript types
+└── utils/
+    └── matching.ts       # Matching algorithm
+```
+
+## Development
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Contributing
+
+This is a hackathon project! Feel free to:
+- Add more features
+- Improve the matching algorithm
+- Add real authentication
+- Connect to a backend
+- Add WebSocket for real-time chat
+
+## License
+
+MIT - Built for hackathons with ❤️
+
+## Support
+
+For issues or questions:
+- Check the Lovable docs: https://docs.lovable.dev
+- Open an issue on GitHub
+
+---
+
+**Happy Hacking! 🚀**
