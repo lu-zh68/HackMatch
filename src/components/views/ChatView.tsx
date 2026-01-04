@@ -236,7 +236,7 @@ export function ChatView() {
                 </div>
               ))}
             </div>
-          ) : (
+          ) : user ? (
             <div className="flex items-center gap-2 mt-3">
               <button
                 onClick={() => setShowAllSkills(true)}
@@ -245,7 +245,7 @@ export function ChatView() {
                 All Skills ({user.skills.length})
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       </motion.header>
 
@@ -338,7 +338,7 @@ export function ChatView() {
         </motion.div>
       )}
 
-      {match.teamStatus === 'teamed' && project && (
+      {match.teamStatus === 'teamed' && project && !isTeamChat && (
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -350,7 +350,28 @@ export function ChatView() {
               <span className="font-medium">Project Created: {project.name}</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Team Members ({project.members.length}/{project.maxMembers}): You and {user.name}
+              Team Members ({project.members.length}/{project.maxMembers}): You and {user?.name}
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              Your profile is still visible to find more teammates!
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {isTeamChat && project && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="fixed bottom-[180px] left-0 right-0 px-4 z-30 max-w-sm mx-auto w-full"
+        >
+          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-green-500">
+              <PartyPopper className="w-5 h-5" />
+              <span className="font-medium">Project Created: {project.name}</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Team Members ({project.members.length}/{project.maxMembers}): You and {teamMembers.map(m => m.name.split(' ')[0]).join(', ')}
             </div>
             <p className="text-xs text-muted-foreground italic">
               Your profile is still visible to find more teammates!
