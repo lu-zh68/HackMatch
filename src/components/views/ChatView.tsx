@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Github, Users, XCircle, PartyPopper, Archive } from 'lucide-react';
+import { ArrowLeft, Send, Github, Users, XCircle, PartyPopper, Archive, Info } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { mockUsers } from '@/data/mockUsers';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,8 @@ export function ChatView() {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showAddTeammate, setShowAddTeammate] = useState(false);
   const [showAllSkills, setShowAllSkills] = useState(false);
+  const [showTeamMembers, setShowTeamMembers] = useState(false);
+  const [showAddToTeamDialog, setShowAddToTeamDialog] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,6 +45,12 @@ export function ChatView() {
     matchedUserIds.includes(u.id) &&
     u.id !== currentChatUserId &&
     !match?.teamMembers?.includes(u.id)
+  );
+
+  // Get user's existing teams (projects where user is not already a member)
+  const existingTeams = projects.filter(p =>
+    !p.members.includes(currentChatUserId || '') &&
+    p.members.length < p.maxMembers
   );
 
   useEffect(() => {
@@ -102,6 +110,20 @@ export function ChatView() {
     }
   };
 
+  const handleAddToExistingTeam = (projectId: string) => {
+    // Find the chat that has this project
+    const teamChat = matches.find(m => m.projectId === projectId);
+    if (teamChat && currentChatUserId) {
+      addTeamMember(teamChat.userId, currentChatUserId);
+      setShowAddToTeamDialog(false);
+    }
+  };
+
+  const handleCreateNewTeam = () => {
+    setShowAddToTeamDialog(false);
+    setShowCreateProject(true);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -130,7 +152,7 @@ export function ChatView() {
 
             <div className="flex-1 min-w-0">
               <h2 className="font-semibold">
-                {isTeamChat ? `Team Chat (${teamMembers.length})` : user.name.split(' ')[0]}
+                {project ? project.name : (isTeamChat ? `Team Chat (${teamMembers.length})` : user.name.split(' ')[0])}
               </h2>
               <p className="text-xs text-muted-foreground">
                 {isTeamChat
@@ -139,33 +161,51 @@ export function ChatView() {
               </p>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAddTeammate(true)}
-              className="hover:bg-muted gap-1.5"
-            >
-              <Users className="w-4 h-4" />
-              Add Teammate
-            </Button>
+            {isTeamChat && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddTeammate(true)}
+                  className="hover:bg-muted gap-1.5"
+                >
+                  <Users className="w-4 h-4" />
+                  Add Teammate
+                </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (isTeamChat) {
-                  // Open all team members' GitHub profiles
-                  teamMembers.forEach(member => {
-                    window.open(`https://github.com/${member.github}`, '_blank');
-                  });
-                } else {
-                  window.open(`https://github.com/${user.github}`, '_blank');
-                }
-              }}
-              className="hover:bg-muted"
-            >
-              <Github className="w-5 h-5" />
-            </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowTeamMembers(true)}
+                  className="hover:bg-muted"
+                >
+                  <Info className="w-5 h-5" />
+                </Button>
+              </>
+            )}
+
+            {!isTeamChat && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddToTeamDialog(true)}
+                  className="hover:bg-muted gap-1.5"
+                >
+                  <Users className="w-4 h-4" />
+                  Add to Team
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => window.open(`https://github.com/${user.github}`, '_blank')}
+                  className="hover:bg-muted"
+                >
+                  <Github className="w-5 h-5" />
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Team member skills */}
@@ -436,6 +476,101 @@ export function ChatView() {
                 </span>
               ))}
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Team Members Dialog */}
+      <Dialog open={showTeamMembers} onOpenChange={setShowTeamMembers}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Team Members</DialogTitle>
+            <DialogDescription>
+              {project ? `${project.members.length}/${project.maxMembers} members` : `${teamMembers.length} members`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {/* You (current user) */}
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <InitialsAvatar name="You" size="md" />
+              <div className="flex-1">
+                <p className="font-semibold">You</p>
+                <p className="text-xs text-muted-foreground">Team creator</p>
+              </div>
+            </div>
+
+            {/* Team members */}
+            {teamMembers.map((member) => (
+              <div key={member.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors">
+                <InitialsAvatar name={member.name} size="md" />
+                <div className="flex-1">
+                  <p className="font-semibold">{member.name}</p>
+                  <p className="text-xs text-muted-foreground">{member.role}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => window.open(`https://github.com/${member.github}`, '_blank')}
+                  className="hover:bg-muted"
+                >
+                  <Github className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to Team Dialog */}
+      <Dialog open={showAddToTeamDialog} onOpenChange={setShowAddToTeamDialog}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Add {user?.name.split(' ')[0]} to Team</DialogTitle>
+            <DialogDescription>
+              Select an existing team or create a new one
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {/* Existing teams */}
+            {existingTeams.length > 0 && (
+              <>
+                <p className="text-sm font-medium text-muted-foreground">Existing Teams</p>
+                {existingTeams.map((team) => (
+                  <button
+                    key={team.id}
+                    onClick={() => handleAddToExistingTeam(team.id)}
+                    className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-all duration-200 border border-border hover:border-primary/30"
+                  >
+                    <div className="flex-1 text-left">
+                      <p className="font-semibold">{team.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {team.members.length}/{team.maxMembers} members
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline" className="pointer-events-none">
+                      Add Here
+                    </Button>
+                  </button>
+                ))}
+                <div className="border-t border-border my-2"></div>
+              </>
+            )}
+
+            {/* Create new team */}
+            <button
+              onClick={handleCreateNewTeam}
+              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-all duration-200 border border-border hover:border-primary/30"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <PartyPopper className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-semibold">Create New Team</p>
+                <p className="text-xs text-muted-foreground">
+                  Start a new project with {user?.name.split(' ')[0]}
+                </p>
+              </div>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
