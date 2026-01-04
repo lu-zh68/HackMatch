@@ -64,28 +64,32 @@ export function ProfileView() {
         <p className="text-muted-foreground text-sm mb-6">{profile.bio}</p>
 
         {/* Skills */}
-        {profile.skills && profile.skills.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Skills</h3>
-            <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill) => (
+        <div className="mb-6">
+          <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Skills</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.skills && profile.skills.length > 0 ? (
+              profile.skills.map((skill) => (
                 <span key={skill} className="skill-pill">{skill}</span>
-              ))}
-            </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No skills selected</p>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Interests */}
-        {profile.interests && profile.interests.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Interests</h3>
-            <div className="flex flex-wrap gap-2">
-              {profile.interests.map((interest) => (
+        <div className="mb-6">
+          <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Interests</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.interests && profile.interests.length > 0 ? (
+              profile.interests.map((interest) => (
                 <span key={interest} className="skill-pill">{interest}</span>
-              ))}
-            </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No interests selected</p>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Links */}
         <div className="space-y-3">
