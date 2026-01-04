@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Github, Users, XCircle, PartyPopper, Archive, Info } from 'lucide-react';
+import { ArrowLeft, Send, Github, Users, XCircle, PartyPopper, Archive, Info, UserPlus } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { mockUsers } from '@/data/mockUsers';
 import { Button } from '@/components/ui/button';
@@ -164,13 +164,12 @@ export function ChatView() {
             {isTeamChat && (
               <>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowAddTeammate(true)}
-                  className="hover:bg-muted gap-1.5"
+                  className="hover:bg-muted"
                 >
-                  <Users className="w-4 h-4" />
-                  Add Teammate
+                  <UserPlus className="w-5 h-5" />
                 </Button>
 
                 <Button
@@ -187,13 +186,12 @@ export function ChatView() {
             {!isTeamChat && (
               <>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowAddToTeamDialog(true)}
-                  className="hover:bg-muted gap-1.5"
+                  className="hover:bg-muted"
                 >
-                  <Users className="w-4 h-4" />
-                  Add to Team
+                  <UserPlus className="w-5 h-5" />
                 </Button>
 
                 <Button
