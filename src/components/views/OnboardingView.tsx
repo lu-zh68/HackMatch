@@ -15,6 +15,32 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// Helper function to extract GitHub username from various formats
+function extractGitHubUsername(input: string): string {
+  const trimmed = input.trim();
+  // Handle full URL: https://github.com/username or http://github.com/username
+  if (trimmed.includes('github.com/')) {
+    const parts = trimmed.split('github.com/');
+    const username = parts[1]?.split('/')[0]?.split('?')[0] || '';
+    return username;
+  }
+  // Return as-is if it's just a username
+  return trimmed;
+}
+
+// Helper function to extract Devpost username from various formats
+function extractDevpostUsername(input: string): string {
+  const trimmed = input.trim();
+  // Handle full URL: https://devpost.com/username
+  if (trimmed.includes('devpost.com/')) {
+    const parts = trimmed.split('devpost.com/');
+    const username = parts[1]?.split('/')[0]?.split('?')[0] || '';
+    return username;
+  }
+  // Return as-is if it's just a username
+  return trimmed;
+}
+
 const pronounOptions = ['He/Him', 'She/Her', 'They/Them', 'Other'];
 
 const roleOptions = [
@@ -29,6 +55,37 @@ const roleOptions = [
   'DevOps Engineer',
   'Security Engineer',
   'Other',
+];
+
+const skillOptions = [
+  'Beginner',
+  'React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'TypeScript', 'JavaScript',
+  'Python', 'Java', 'C++', 'Go', 'Rust', 'Swift', 'Kotlin',
+  'Node.js', 'Express', 'Django', 'Flask', 'Spring Boot', 'FastAPI',
+  'PostgreSQL', 'MongoDB', 'MySQL', 'Redis', 'Firebase',
+  'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'CI/CD',
+  'GraphQL', 'REST API', 'gRPC', 'WebSockets',
+  'Solidity', 'ethers.js', 'Web3.js', 'Hardhat', 'Truffle',
+  'PyTorch', 'TensorFlow', 'LangChain', 'OpenAI API', 'Hugging Face',
+  'Figma', 'Adobe XD', 'Sketch', 'Tailwind CSS', 'Material-UI', 'shadcn/ui',
+  'Git', 'Linux', 'Bash', 'Nginx', 'GraphQL', 'Prisma', 'Supabase',
+];
+
+const interestOptions = [
+  'Web3', 'DeFi', 'DAOs', 'NFTs', 'Blockchain',
+  'AI Agents', 'LLMs', 'Machine Learning', 'Computer Vision', 'NLP',
+  'RAG', 'Fine-tuning', 'Prompt Engineering',
+  'Mobile Apps', 'iOS Development', 'Android Development',
+  'Game Development', 'AR/VR', 'XR',
+  'IoT', 'Robotics', 'Hardware',
+  'Cybersecurity', 'Privacy', 'Encryption',
+  'DevOps', 'Cloud Computing', 'Serverless',
+  'Database Optimization', 'Distributed Systems', 'System Design',
+  'Data Science', 'Data Visualization', 'Analytics',
+  'UI/UX', 'Design Systems', 'Accessibility',
+  'Open Source', 'Hackathons', 'Competitive Programming',
+  'Social Impact', 'Sustainability', 'Education',
+  'E-commerce', 'Fintech', 'Health Tech', 'Music/Art',
 ];
 
 const timeZones = [
@@ -91,13 +148,24 @@ export function OnboardingView() {
     activityLevel: '',
     hackathonCount: null,
     lookingForTeam: true,
+    occupation: '',
+    studentLevel: '',
+    schoolName: '',
+    graduationMonth: '',
+    graduationYear: '',
+    birthMonth: '',
+    birthYear: '',
   });
   const [skillInput, setSkillInput] = useState('');
   const [interestInput, setInterestInput] = useState('');
+  const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
+  const [showInterestsDropdown, setShowInterestsDropdown] = useState(false);
+  const [skillSearchQuery, setSkillSearchQuery] = useState('');
+  const [interestSearchQuery, setInterestSearchQuery] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (profile.name && profile.timeZone) {
+    if (profile.name && profile.devpost && profile.timeZone && profile.occupation && profile.schoolName && profile.graduationMonth && profile.graduationYear) {
       completeOnboarding(profile);
     }
   };
@@ -139,6 +207,22 @@ export function OnboardingView() {
     if (e.key === 'Enter') {
       e.preventDefault();
       addInterest();
+    }
+  };
+
+  const toggleSkill = (skill: string) => {
+    if (profile.skills.includes(skill)) {
+      updateProfile('skills', profile.skills.filter(s => s !== skill));
+    } else {
+      updateProfile('skills', [...profile.skills, skill]);
+    }
+  };
+
+  const toggleInterest = (interest: string) => {
+    if (profile.interests.includes(interest)) {
+      updateProfile('interests', profile.interests.filter(i => i !== interest));
+    } else {
+      updateProfile('interests', [...profile.interests, interest]);
     }
   };
 
@@ -245,6 +329,159 @@ export function OnboardingView() {
             </div>
           </motion.section>
 
+          {/* Education Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flat-card rounded-xl p-5 space-y-4"
+          >
+            <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold">Education</h2>
+
+            {/* Occupation */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Occupation *</Label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => updateProfile('occupation', 'Student')}
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                    profile.occupation === 'Student'
+                      ? 'border-primary bg-primary/10 text-primary font-medium'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateProfile('occupation', 'Professional / Post Grad')}
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                    profile.occupation === 'Professional / Post Grad'
+                      ? 'border-primary bg-primary/10 text-primary font-medium'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  Professional / Post Grad
+                </button>
+              </div>
+            </div>
+
+            {/* Student Level - only show if Student */}
+            {profile.occupation === 'Student' && (
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Current student level *</Label>
+                <div className="flex gap-2">
+                  {['College', 'High School', 'Middle School'].map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => updateProfile('studentLevel', level)}
+                      className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all text-sm ${
+                        profile.studentLevel === level
+                          ? 'border-primary bg-primary/10 text-primary font-medium'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* School Name */}
+            <div className="space-y-2">
+              <Label htmlFor="schoolName" className="text-muted-foreground">School name *</Label>
+              <Input
+                id="schoolName"
+                placeholder="University of California - Los Angeles (UCLA)"
+                value={profile.schoolName}
+                onChange={(e) => updateProfile('schoolName', e.target.value)}
+                className="bg-background border-border focus:border-primary"
+                required
+              />
+            </div>
+
+            {/* Graduation */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="graduationMonth" className="text-muted-foreground">Graduation month *</Label>
+                <Select
+                  value={profile.graduationMonth}
+                  onValueChange={(value) => updateProfile('graduationMonth', value)}
+                >
+                  <SelectTrigger className="bg-background border-border">
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="graduationYear" className="text-muted-foreground">Year *</Label>
+                <Select
+                  value={profile.graduationYear}
+                  onValueChange={(value) => updateProfile('graduationYear', value)}
+                >
+                  <SelectTrigger className="bg-background border-border">
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {Array.from({ length: 10 }, (_, i) => 2024 + i).map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Birth Month - Optional */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-xs">Birth month (optional)</Label>
+              <p className="text-xs text-muted-foreground">Most hackathons have age requirements</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  value={profile.birthMonth || ''}
+                  onValueChange={(value) => updateProfile('birthMonth', value)}
+                >
+                  <SelectTrigger className="bg-background border-border">
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={profile.birthYear || ''}
+                  onValueChange={(value) => updateProfile('birthYear', value)}
+                >
+                  <SelectTrigger className="bg-background border-border">
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {Array.from({ length: 50 }, (_, i) => 2010 - i).map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </motion.section>
+
           {/* Links Section */}
           <motion.section
             initial={{ opacity: 0, y: 10 }}
@@ -253,25 +490,38 @@ export function OnboardingView() {
             className="flat-card rounded-xl p-5 space-y-4"
           >
             <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold">Links</h2>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="github" className="text-muted-foreground">GitHub Username</Label>
+              <Label htmlFor="devpost" className="text-muted-foreground">Devpost Username *</Label>
               <Input
-                id="github"
-                placeholder="username"
-                value={profile.github}
-                onChange={(e) => updateProfile('github', e.target.value)}
+                id="devpost"
+                placeholder="username or paste Devpost URL"
+                value={profile.devpost}
+                onChange={(e) => updateProfile('devpost', e.target.value)}
+                onBlur={(e) => {
+                  const extracted = extractDevpostUsername(e.target.value);
+                  if (extracted !== e.target.value) {
+                    updateProfile('devpost', extracted);
+                  }
+                }}
                 className="bg-background border-border focus:border-primary"
+                required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="devpost" className="text-muted-foreground">Devpost Username</Label>
+              <Label htmlFor="github" className="text-muted-foreground">GitHub Username</Label>
               <Input
-                id="devpost"
-                placeholder="username"
-                value={profile.devpost}
-                onChange={(e) => updateProfile('devpost', e.target.value)}
+                id="github"
+                placeholder="username or paste GitHub URL"
+                value={profile.github}
+                onChange={(e) => updateProfile('github', e.target.value)}
+                onBlur={(e) => {
+                  const extracted = extractGitHubUsername(e.target.value);
+                  if (extracted !== e.target.value) {
+                    updateProfile('github', extracted);
+                  }
+                }}
                 className="bg-background border-border focus:border-primary"
               />
             </div>
@@ -286,23 +536,56 @@ export function OnboardingView() {
           >
             <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold">Skills</h2>
 
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add a skill (e.g., React)"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={handleSkillKeyDown}
-                className="bg-background border-border focus:border-primary flex-1"
-              />
+            <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
-                onClick={addSkill}
-                className="shrink-0 border-border hover:bg-muted hover:border-primary"
+                onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
+                className="w-full justify-between bg-background border-border hover:bg-muted"
               >
-                <Plus className="w-4 h-4" />
+                <span className="text-muted-foreground">
+                  {profile.skills.length > 0 ? `${profile.skills.length} skills selected` : 'Select skills'}
+                </span>
+                <Plus className={`w-4 h-4 transition-transform ${showSkillsDropdown ? 'rotate-45' : ''}`} />
               </Button>
+
+              {showSkillsDropdown && (
+                <div className="border border-border rounded-lg bg-background">
+                  <div className="p-2 border-b border-border">
+                    <Input
+                      type="text"
+                      placeholder="Search skills..."
+                      value={skillSearchQuery}
+                      onChange={(e) => setSkillSearchQuery(e.target.value)}
+                      className="bg-background border-border text-sm"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto p-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      {skillOptions
+                        .filter(skill => skill.toLowerCase().includes(skillSearchQuery.toLowerCase()))
+                        .map((skill) => (
+                        <label
+                          key={skill}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-all ${
+                            profile.skills.includes(skill)
+                              ? 'bg-primary/10 border border-primary/20 text-primary'
+                              : 'hover:bg-muted border border-transparent'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={profile.skills.includes(skill)}
+                            onChange={() => toggleSkill(skill)}
+                            className="w-4 h-4 rounded border-border"
+                          />
+                          <span className="text-sm">{skill}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {profile.skills.length > 0 && (
@@ -335,23 +618,56 @@ export function OnboardingView() {
           >
             <h2 className="text-sm uppercase tracking-wider text-muted-foreground font-semibold">Interests</h2>
 
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add an interest (e.g., AI, Web3)"
-                value={interestInput}
-                onChange={(e) => setInterestInput(e.target.value)}
-                onKeyDown={handleInterestKeyDown}
-                className="bg-background border-border focus:border-primary flex-1"
-              />
+            <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
-                onClick={addInterest}
-                className="shrink-0 border-border hover:bg-muted hover:border-primary"
+                onClick={() => setShowInterestsDropdown(!showInterestsDropdown)}
+                className="w-full justify-between bg-background border-border hover:bg-muted"
               >
-                <Plus className="w-4 h-4" />
+                <span className="text-muted-foreground">
+                  {profile.interests.length > 0 ? `${profile.interests.length} interests selected` : 'Select interests'}
+                </span>
+                <Plus className={`w-4 h-4 transition-transform ${showInterestsDropdown ? 'rotate-45' : ''}`} />
               </Button>
+
+              {showInterestsDropdown && (
+                <div className="border border-border rounded-lg bg-background">
+                  <div className="p-2 border-b border-border">
+                    <Input
+                      type="text"
+                      placeholder="Search interests..."
+                      value={interestSearchQuery}
+                      onChange={(e) => setInterestSearchQuery(e.target.value)}
+                      className="bg-background border-border text-sm"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto p-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      {interestOptions
+                        .filter(interest => interest.toLowerCase().includes(interestSearchQuery.toLowerCase()))
+                        .map((interest) => (
+                        <label
+                          key={interest}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-all ${
+                            profile.interests.includes(interest)
+                              ? 'bg-primary/10 border border-primary/20 text-primary'
+                              : 'hover:bg-muted border border-transparent'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={profile.interests.includes(interest)}
+                          onChange={() => toggleInterest(interest)}
+                          className="w-4 h-4 rounded border-border"
+                        />
+                        <span className="text-sm">{interest}</span>
+                      </label>
+                    ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {profile.interests.length > 0 && (
@@ -419,11 +735,11 @@ export function OnboardingView() {
                 <SelectValue placeholder="Select your activity level" />
               </SelectTrigger>
               <SelectContent className="bg-card border-border">
-                <SelectItem value="5+ times per week">5+ times per week - Very Active</SelectItem>
-                <SelectItem value="3-4 times per week">3-4 times per week - Active</SelectItem>
-                <SelectItem value="2-3 times per week">2-3 times per week - Moderate</SelectItem>
-                <SelectItem value="1-2 times per week">1-2 times per week - Casual</SelectItem>
-                <SelectItem value="Few times per month">Few times per month - Occasional</SelectItem>
+                <SelectItem value="Multiple times per month — Very Active">Multiple times per month — Very Active</SelectItem>
+                <SelectItem value="About once per month — Active">About once per month — Active</SelectItem>
+                <SelectItem value="Every few months — Moderate">Every few months — Moderate</SelectItem>
+                <SelectItem value="A few times per year — Casual">A few times per year — Casual</SelectItem>
+                <SelectItem value="Rarely / just starting — New">Rarely / just starting — New</SelectItem>
               </SelectContent>
             </Select>
           </motion.section>

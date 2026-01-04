@@ -15,6 +15,13 @@ export interface UserProfile {
   hackathonCount?: number | null;
   currentProjectId?: string;
   lookingForTeam: boolean;
+  occupation: string;
+  studentLevel?: string;
+  schoolName: string;
+  graduationMonth: string;
+  graduationYear: string;
+  birthMonth?: string;
+  birthYear?: string;
 }
 
 export interface AppState {

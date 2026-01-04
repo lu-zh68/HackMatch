@@ -19,8 +19,9 @@ export function BottomNav() {
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className="fixed bottom-0 left-0 right-0 z-50"
     >
-      <div className="bg-card border-t border-border px-6 py-3 mx-4 mb-4 rounded-xl">
-        <div className="flex items-center justify-around">
+      <div className="max-w-sm mx-auto w-full px-4 mb-4">
+        <div className="bg-card border-t border-border px-6 py-3 rounded-xl">
+          <div className="flex items-center justify-around">
           {navItems.map(({ view, icon: Icon, label }) => {
             const isActive = currentView === view || (currentView === 'chat' && view === 'matches');
             return (
@@ -53,6 +54,7 @@ export function BottomNav() {
               </motion.button>
             );
           })}
+          </div>
         </div>
       </div>
     </motion.nav>

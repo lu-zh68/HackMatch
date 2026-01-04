@@ -21,11 +21,13 @@ export function HackathonSelectView() {
       {/* Grid pattern */}
       <div className="absolute inset-0 grid-pattern-subtle opacity-20 pointer-events-none" />
 
+      <div className="max-w-sm mx-auto relative z-10">
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 relative z-10"
+        className="mb-6"
       >
         <h1 className="text-3xl font-bold tracking-tight mb-2">
           Select Your Hackathon
@@ -36,7 +38,7 @@ export function HackathonSelectView() {
       </motion.div>
 
       {/* Hackathon List */}
-      <div className="space-y-4 relative z-10">
+      <div className="space-y-4">
         {mockHackathons.map((hackathon, index) => (
           <motion.div
             key={hackathon.id}
@@ -127,6 +129,7 @@ export function HackathonSelectView() {
         </Button>
       </motion.div>
 
+      </div>
       <BottomNav />
     </div>
   );

@@ -26,7 +26,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isLoggedIn: false,
     hasCompletedOnboarding: false,
     userProfile: null,
-    matchedUserIds: ['2', '4'],
+    matchedUserIds: [],
     currentChatUserId: null,
   });
 
@@ -138,8 +138,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addTeamMember = (chatUserId: string, newMemberId: string) => {
+    // Find the project associated with this chat
+    const chatMatch = matches.find(m => m.userId === chatUserId);
+    const projectId = chatMatch?.projectId;
+
     setMatches(prev =>
       prev.map(match => {
+        // Update the current chat's team members
         if (match.userId === chatUserId) {
           const currentTeamMembers = match.teamMembers || [chatUserId];
           if (!currentTeamMembers.includes(newMemberId)) {
@@ -149,9 +154,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
             };
           }
         }
+        // Update the newly added member's match status to "teamed"
+        if (match.userId === newMemberId && projectId) {
+          return {
+            ...match,
+            teamStatus: 'teamed',
+            projectId: projectId,
+          };
+        }
         return match;
       })
     );
+
+    // Update the project to add the new member
+    if (projectId) {
+      setProjects(prev =>
+        prev.map(project => {
+          if (project.id === projectId && !project.members.includes(newMemberId)) {
+            return {
+              ...project,
+              members: [...project.members, newMemberId],
+            };
+          }
+          return project;
+        })
+      );
+    }
   };
 
   return (

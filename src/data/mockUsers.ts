@@ -33,7 +33,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '2 min ago',
     role: 'Full-stack Developer',
     intent: 'want to build something that actually ships, preferably web3',
-    activityLevel: '5+ times per week',
+    activityLevel: 'Multiple times per month — Very Active',
     hackathonCount: 12,
   },
   {
@@ -52,7 +52,7 @@ export const mockUsers: MockUser[] = [
     role: 'AI/ML Engineer',
     hackathonCount: 8,
     intent: 'trying to build the next big ai app, down to learn new frameworks',
-    activityLevel: '3-4 times per week',
+    activityLevel: 'About once per month — Active',
   },
   {
     id: '3',
@@ -69,7 +69,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '1 hour ago',
     role: 'Backend Developer',
     intent: 'looking to build scalable systems and win some prizes',
-    activityLevel: '5+ times per week',
+    activityLevel: 'Multiple times per month — Very Active',
   },
   {
     id: '4',
@@ -86,7 +86,7 @@ export const mockUsers: MockUser[] = [
     lastActive: 'Just now',
     role: 'UI/UX Designer',
     intent: 'want to contribute design skills and learn from experienced devs',
-    activityLevel: 'Few times per month',
+    activityLevel: 'Rarely / just starting — New',
   },
   {
     id: '5',
@@ -103,7 +103,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '30 min ago',
     role: 'Mobile Developer',
     intent: 'ship a mobile app this weekend, looking for motivated teammates',
-    activityLevel: '3-4 times per week',
+    activityLevel: 'About once per month — Active',
   },
   {
     id: '6',
@@ -120,7 +120,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '10 min ago',
     role: 'Frontend Developer',
     intent: 'create something beautiful that people actually want to use',
-    activityLevel: '5+ times per week',
+    activityLevel: 'Multiple times per month — Very Active',
   },
   {
     id: '7',
@@ -137,7 +137,7 @@ export const mockUsers: MockUser[] = [
     lastActive: 'Just now',
     role: 'Data Scientist',
     intent: 'build something that actually helps people, preferably health/social impact',
-    activityLevel: '2-3 times per week',
+    activityLevel: 'Every few months — Moderate',
   },
   {
     id: '8',
@@ -154,7 +154,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '2 hours ago',
     role: 'Backend Developer',
     intent: 'looking to learn new tech and build something cool with a chill team',
-    activityLevel: '3-4 times per week',
+    activityLevel: 'About once per month — Active',
   },
   {
     id: '9',
@@ -171,7 +171,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '15 min ago',
     role: 'Full-stack Developer',
     intent: 'ship something fun this weekend, maybe a multiplayer game?',
-    activityLevel: '5+ times per week',
+    activityLevel: 'Multiple times per month — Very Active',
   },
   {
     id: '10',
@@ -188,7 +188,7 @@ export const mockUsers: MockUser[] = [
     lastActive: '45 min ago',
     role: 'Product Manager',
     intent: 'find a team that cares about solving real problems, not just tech for tech sake',
-    activityLevel: '2-3 times per week',
+    activityLevel: 'A few times per year — Casual',
   },
 ];
 
@@ -210,24 +210,4 @@ export interface Match {
   teamMembers?: string[]; // Array of user IDs in team chat (includes userId)
 }
 
-export const initialMatches: Match[] = [
-  {
-    userId: '2',
-    matchedAt: '2 hours ago',
-    teamStatus: 'chatting',
-    messages: [
-      { id: 'm1', senderId: '2', text: 'yo! saw your profile, wanna build an ai agent together?', timestamp: '2h ago' },
-      { id: 'm2', senderId: 'me', text: 'definitely! been wanting to try langchain for a rag project', timestamp: '1h ago' },
-      { id: 'm3', senderId: '2', text: 'perfect match lol, i have some ideas. down to chat more?', timestamp: '45m ago' },
-    ],
-  },
-  {
-    userId: '4',
-    matchedAt: '1 day ago',
-    teamStatus: 'matched',
-    messages: [
-      { id: 'm4', senderId: '4', text: 'hey!! this is my first hackathon, kinda nervous haha', timestamp: '1d ago' },
-      { id: 'm5', senderId: 'me', text: 'welcome! no worries, everyones super friendly. what kind of stuff are you interested in?', timestamp: '1d ago' },
-    ],
-  },
-];
+export const initialMatches: Match[] = [];

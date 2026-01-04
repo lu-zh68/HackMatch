@@ -23,6 +23,7 @@ export function ChatView() {
   const [message, setMessage] = useState('');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showAddTeammate, setShowAddTeammate] = useState(false);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -109,77 +110,98 @@ export function ChatView() {
         animate={{ y: 0, opacity: 1 }}
         className="bg-card border-b border-border px-4 py-3 sticky top-0 z-40"
       >
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('matches')}
-            className="hover:bg-muted"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+        <div className="max-w-sm mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('matches')}
+              className="hover:bg-muted"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
 
-          <div className="relative">
-            <InitialsAvatar name={user.name} size="sm" />
-            {user.isOnline && (
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-card" />
-            )}
+            <div className="relative">
+              <InitialsAvatar name={user.name} size="sm" />
+              {user.isOnline && (
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-card" />
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold">
+                {isTeamChat ? `Team Chat (${teamMembers.length})` : user.name.split(' ')[0]}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {isTeamChat
+                  ? teamMembers.map(m => m.name.split(' ')[0]).join(', ')
+                  : (user.isOnline ? 'Online' : user.lastActive)}
+              </p>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAddTeammate(true)}
+              className="hover:bg-muted gap-1.5"
+            >
+              <Users className="w-4 h-4" />
+              Add Teammate
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (isTeamChat) {
+                  // Open all team members' GitHub profiles
+                  teamMembers.forEach(member => {
+                    window.open(`https://github.com/${member.github}`, '_blank');
+                  });
+                } else {
+                  window.open(`https://github.com/${user.github}`, '_blank');
+                }
+              }}
+              className="hover:bg-muted"
+            >
+              <Github className="w-5 h-5" />
+            </Button>
           </div>
 
-          <div className="flex-1">
-            <h2 className="font-semibold">
-              {isTeamChat ? `Team Chat (${teamMembers.length})` : user.name}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {isTeamChat
-                ? teamMembers.map(m => m.name).join(', ')
-                : (user.isOnline ? 'Online' : user.lastActive)}
-            </p>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAddTeammate(true)}
-            className="hover:bg-muted gap-1.5"
-          >
-            <Users className="w-4 h-4" />
-            Add Teammate
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => window.open(`https://github.com/${user.github}`, '_blank')}
-            className="hover:bg-muted"
-          >
-            <Github className="w-5 h-5" />
-          </Button>
-        </div>
-
-        {/* Team member avatars */}
-        {isTeamChat && (
-          <div className="flex items-center gap-2 mt-3">
-            {teamMembers.map(member => (
-              <div key={member.id} className="relative" title={member.name}>
-                <InitialsAvatar name={member.name} size="xs" />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* User info bar */}
-        <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-          {user.skills.slice(0, 4).map((skill) => (
-            <span key={skill} className="shrink-0 skill-pill text-xs">
-              {skill}
-            </span>
-          ))}
+          {/* Team member skills */}
+          {isTeamChat ? (
+            <div className="mt-3 space-y-3">
+              {teamMembers.map(member => (
+                <div key={member.id}>
+                  <p className="text-xs text-muted-foreground mb-1.5">{member.name.split(' ')[0]}</p>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {member.skills.slice(0, 4).map((skill) => (
+                      <span key={skill} className="shrink-0 skill-pill text-xs">
+                        {skill}
+                      </span>
+                    ))}
+                    {member.skills.length > 4 && (
+                      <span className="text-xs text-muted-foreground">+{member.skills.length - 4}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mt-3">
+              <button
+                onClick={() => setShowAllSkills(true)}
+                className="shrink-0 skill-pill text-xs flex items-center gap-1.5 hover:bg-primary/20 transition-colors"
+              >
+                All Skills ({user.skills.length})
+              </button>
+            </div>
+          )}
         </div>
       </motion.header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-40">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-40 max-w-sm mx-auto w-full">
         {/* Match notification */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -239,7 +261,7 @@ export function ChatView() {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed bottom-[180px] left-0 right-0 px-4 z-30"
+          className="fixed bottom-[180px] left-0 right-0 px-4 z-30 max-w-sm mx-auto w-full"
         >
           <div className="bg-card border border-primary/20 rounded-xl p-4 space-y-3">
             <div className="flex items-center gap-2 text-sm">
@@ -271,7 +293,7 @@ export function ChatView() {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed bottom-[180px] left-0 right-0 px-4 z-30"
+          className="fixed bottom-[180px] left-0 right-0 px-4 z-30 max-w-sm mx-auto w-full"
         >
           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 space-y-2">
             <div className="flex items-center gap-2 text-green-500">
@@ -289,7 +311,7 @@ export function ChatView() {
       )}
 
       {/* Message Input */}
-      <div className="fixed bottom-24 left-0 right-0 px-4 z-30">
+      <div className="fixed bottom-24 left-0 right-0 px-4 z-30 max-w-sm mx-auto w-full">
         <form onSubmit={handleSend} className="bg-card border border-border rounded-xl p-2 flex items-center gap-2">
           <Input
             value={message}
@@ -393,6 +415,27 @@ export function ChatView() {
                 </button>
               ))
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* All Skills Dialog */}
+      <Dialog open={showAllSkills} onOpenChange={setShowAllSkills}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>{user?.name.split(' ')[0]}'s Skills</DialogTitle>
+            <DialogDescription>
+              All {user?.skills.length} skills
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex flex-wrap gap-2">
+              {user?.skills.map((skill) => (
+                <span key={skill} className="skill-pill">
+                  {skill}
+                </span>
+              ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

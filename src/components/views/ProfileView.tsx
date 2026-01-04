@@ -6,7 +6,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { InitialsAvatar } from '@/components/InitialsAvatar';
 
 export function ProfileView() {
-  const { userProfile, logout } = useApp();
+  const { userProfile, logout, matches } = useApp();
 
   const defaultProfile = {
     name: 'Hacker',
@@ -24,6 +24,8 @@ export function ProfileView() {
     <div className="min-h-screen px-4 pt-6 pb-28 relative">
       {/* Grid pattern */}
       <div className="absolute inset-0 grid-pattern-subtle opacity-20 pointer-events-none" />
+
+      <div className="max-w-sm mx-auto relative z-10">
       
       {/* Header */}
       <motion.div
@@ -119,18 +121,24 @@ export function ProfileView() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="grid grid-cols-3 gap-3 mb-6 relative z-10"
+        className="space-y-3 mb-6 relative z-10"
       >
-        {[
-          { label: 'Matches', value: '2' },
-          { label: 'Chats', value: '5' },
-          { label: 'Hackathons', value: '3' },
-        ].map((stat) => (
-          <div key={stat.label} className="flat-card rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{stat.value}</p>
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flat-card rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-primary">{matches.length}</p>
+            <p className="text-xs text-muted-foreground">Matches</p>
           </div>
-        ))}
+          <div className="flat-card rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-primary">{matches.length}</p>
+            <p className="text-xs text-muted-foreground">Chats</p>
+          </div>
+        </div>
+        <div className="flat-card rounded-xl p-4 text-center">
+          <p className="text-2xl font-bold text-primary">
+            {profile.hackathonCount !== null && profile.hackathonCount !== undefined ? profile.hackathonCount : ''}
+          </p>
+          <p className="text-xs text-muted-foreground">Hackathons</p>
+        </div>
       </motion.div>
 
       {/* Settings */}
@@ -145,17 +153,6 @@ export function ProfileView() {
         </h3>
         
         <div className="flat-card rounded-xl overflow-hidden">
-          <button className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                <Settings className="w-5 h-5" />
-              </div>
-              <span className="font-medium">Preferences</span>
-            </div>
-          </button>
-          
-          <div className="h-px bg-border" />
-          
           <button
             onClick={logout}
             className="w-full flex items-center justify-between p-4 hover:bg-destructive/10 transition-colors text-destructive"
@@ -170,6 +167,7 @@ export function ProfileView() {
         </div>
       </motion.div>
 
+      </div>
       <BottomNav />
     </div>
   );

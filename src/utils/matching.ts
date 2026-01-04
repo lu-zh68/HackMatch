@@ -18,11 +18,16 @@ function calculateFallbackMatchScore(
   userProfile: UserProfile,
   candidate: MockUser
 ): MatchScore {
+  // Add variation based on candidate ID for consistent but varied scores
+  const candidateVariation = parseInt(candidate.id) || 1;
+  const variationFactor = (candidateVariation % 3) / 10; // 0, 0.1, or 0.2
+
   // Interest overlap (0-40 points)
   const commonInterests = candidate.interests.filter(i =>
     userProfile.interests.some(ui => ui.toLowerCase() === i.toLowerCase())
   );
-  const interestMatch = Math.min((commonInterests.length / Math.max(candidate.interests.length, 1)) * 40, 40);
+  const interestBase = (commonInterests.length / Math.max(candidate.interests.length, 1)) * 40;
+  const interestMatch = Math.min(interestBase * (0.7 + variationFactor), 40);
 
   // Skill complementarity (0-30 points)
   // Higher score if skills complement but don't fully overlap
@@ -32,12 +37,14 @@ function calculateFallbackMatchScore(
   const uniqueSkills = candidate.skills.filter(s =>
     !userProfile.skills.some(us => us.toLowerCase() === s.toLowerCase())
   );
-  const skillComplementarity = (uniqueSkills.length / Math.max(candidate.skills.length, 1)) * 20 +
+  const skillBase = (uniqueSkills.length / Math.max(candidate.skills.length, 1)) * 20 +
     (commonSkills.length / Math.max(candidate.skills.length, 1)) * 10;
+  const skillComplementarity = skillBase * (0.8 + (candidateVariation % 4) / 10);
 
   // Role compatibility (0-20 points)
-  // Different roles complement each other better
-  const roleCompatibility = userProfile.role === candidate.role ? 10 : 20;
+  // Different roles complement each other better, with variation
+  const roleBase = userProfile.role === candidate.role ? 10 : 20;
+  const roleCompatibility = roleBase * (0.75 + (candidateVariation % 5) / 10);
 
   // Intent alignment (0-10 points)
   // Simple keyword matching for intent
@@ -47,11 +54,19 @@ function calculateFallbackMatchScore(
   const matchedKeywords = intentKeywords.filter(
     kw => userIntent.includes(kw) && candidateIntent.includes(kw)
   );
-  const intentAlignment = (matchedKeywords.length / intentKeywords.length) * 10;
+  const intentBase = (matchedKeywords.length / intentKeywords.length) * 10;
+  const intentAlignment = intentBase * (0.6 + (candidateVariation % 6) / 10);
+
+  // Add final random variance (-5 to +5 points) based on candidate ID
+  const finalVariance = ((candidateVariation * 7) % 11) - 5;
+  const totalScore = Math.round(interestMatch + skillComplementarity + roleCompatibility + intentAlignment + finalVariance);
+
+  // Ensure score is between 45-95 for realistic variation
+  const finalScore = Math.max(45, Math.min(95, totalScore));
 
   return {
     userId: candidate.id,
-    score: Math.round(interestMatch + skillComplementarity + roleCompatibility + intentAlignment),
+    score: finalScore,
     breakdown: {
       interestMatch: Math.round(interestMatch),
       skillComplementarity: Math.round(skillComplementarity),

@@ -148,9 +148,11 @@ export function SwipeView() {
               {/* Header */}
               <div className="text-center">
                 <h2 className="text-2xl font-bold tracking-tight">{currentUser.name}</h2>
-                <span className="text-sm text-muted-foreground">{currentUser.pronouns}</span>
-                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                  {currentUser.role}
+                <div className="flex items-center justify-center gap-3 mt-1">
+                  <span className="text-sm text-muted-foreground">{currentUser.pronouns}</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                    {currentUser.role}
+                  </span>
                 </div>
                 <p className="text-muted-foreground text-sm mt-2">{currentUser.bio}</p>
                 {currentUser.intent && (
@@ -217,7 +219,7 @@ export function SwipeView() {
               <div>
                 <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 font-semibold">Activity Level</h3>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-muted text-foreground border border-border">
-                  {currentUser.activityLevel}
+                  {currentUser.activityLevel.includes('—') ? currentUser.activityLevel.split('—')[1].trim() : currentUser.activityLevel}
                 </div>
               </div>
 

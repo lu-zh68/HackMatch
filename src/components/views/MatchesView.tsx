@@ -30,6 +30,8 @@ export function MatchesView() {
     <div className="min-h-screen px-4 pt-6 pb-28 relative">
       {/* Grid pattern */}
       <div className="absolute inset-0 grid-pattern-subtle opacity-20 pointer-events-none" />
+
+      <div className="max-w-sm mx-auto relative z-10">
       
       {/* Header */}
       <motion.div
@@ -83,11 +85,18 @@ export function MatchesView() {
 
                 {/* Info */}
                 <div className="flex-1 text-left min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">{user.name}</h3>
+                  <h3 className="font-semibold mb-1">{user.name}</h3>
+                  <div className="mb-1">
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${statusBadge.className}`}>
                       {statusBadge.text}
                     </span>
+                  </div>
+                  <div className="flex gap-1 mb-1 flex-wrap">
+                    {user.skills.slice(0, 3).map((skill) => (
+                      <span key={skill} className="skill-pill text-xs">
+                        {skill}
+                      </span>
+                    ))}
                   </div>
                   <p className="text-sm text-muted-foreground truncate">
                     {lastMessage ? (
@@ -100,21 +109,13 @@ export function MatchesView() {
                     )}
                   </p>
                 </div>
-
-                {/* Skills preview */}
-                <div className="hidden sm:flex gap-1">
-                  {user.skills.slice(0, 2).map((skill) => (
-                    <span key={skill} className="skill-pill text-xs">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
               </motion.button>
             );
           })}
         </div>
       )}
 
+      </div>
       <BottomNav />
     </div>
   );
