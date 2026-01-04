@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Github, ExternalLink, Edit2, Zap } from 'lucide-react';
+import { Settings, LogOut, Github, ExternalLink, Zap } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
 import { BottomNav } from '@/components/BottomNav';
 import { InitialsAvatar } from '@/components/InitialsAvatar';
 
@@ -16,6 +15,7 @@ export function ProfileView() {
     devpost: 'username',
     timeZone: 'UTC+0',
     skills: ['JavaScript', 'React'],
+    interests: ['Web Development', 'Hackathons'],
   };
 
   const profile = userProfile || defaultProfile;
@@ -37,9 +37,6 @@ export function ProfileView() {
           <Settings className="w-6 h-6 text-primary" />
           Profile
         </h1>
-        <Button variant="ghost" size="icon" className="hover:bg-muted">
-          <Edit2 className="w-5 h-5" />
-        </Button>
       </motion.div>
 
       {/* Profile Card */}
@@ -73,6 +70,18 @@ export function ProfileView() {
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((skill) => (
                 <span key={skill} className="skill-pill">{skill}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Interests */}
+        {profile.interests && profile.interests.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Interests</h3>
+            <div className="flex flex-wrap gap-2">
+              {profile.interests.map((interest) => (
+                <span key={interest} className="skill-pill">{interest}</span>
               ))}
             </div>
           </div>
