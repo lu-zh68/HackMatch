@@ -138,11 +138,11 @@ export function ProfileView() {
       >
         <div className="grid grid-cols-2 gap-3">
           <div className="flat-card rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{matches.length}</p>
+            <p className="text-2xl font-bold text-primary">{matches.filter(m => !m.isTeamChat).length}</p>
             <p className="text-xs text-muted-foreground">Matches</p>
           </div>
           <div className="flat-card rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{matches.length}</p>
+            <p className="text-2xl font-bold text-primary">{matches.filter(m => !m.isTeamChat).length}</p>
             <p className="text-xs text-muted-foreground">Chats</p>
           </div>
         </div>

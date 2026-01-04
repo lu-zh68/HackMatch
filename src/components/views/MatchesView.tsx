@@ -43,6 +43,8 @@ export function MatchesView() {
     };
   });
 
+  const individualMatchesCount = matches.filter(m => !m.isTeamChat).length;
+
   return (
     <div className="min-h-screen px-4 pt-6 pb-28 relative">
       {/* Grid pattern */}
@@ -61,7 +63,7 @@ export function MatchesView() {
           Matches
         </h1>
         <p className="text-muted-foreground text-sm">
-          {matchedUsers.length} teammate{matchedUsers.length !== 1 ? 's' : ''} ready to hack
+          {individualMatchesCount} teammate{individualMatchesCount !== 1 ? 's' : ''} ready to hack
         </p>
       </motion.div>
 
